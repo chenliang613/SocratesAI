@@ -82,6 +82,59 @@ Salesforce 处于价值链最上层，向下依赖云与模型，向外依靠生
 
 ---
 
+## 07 客户与场景：Agentforce 落到哪些业务场景
+
+Salesforce 把 Agent 嵌入销售、服务、营销等核心业务流，跨行业兑现结果。
+
+| 行业 / 场景 | 关键应用 | 说明 |
+| --- | --- | --- |
+| 销售团队 | Sales + Agentforce | Agent 自动跟进线索、更新 CRM、生成话术 |
+| 客户服务 | Service Cloud | Agent 自主处理工单、查订单、办退换货 |
+| 营销 | Marketing + Data Cloud | 基于统一客户数据做精准营销与个性化 |
+| 跨行业 | 金融/零售/制造 | 各行业 CRM 场景嵌入 Agentforce 办事 |
+
+---
+
+## 08 竞争格局：应用层 Agent 化的多强竞争
+
+对手从办公生态、工作流、ERP 三个方向做 Agent 化，Salesforce 以客户数据 + 信任突围。
+
+| 对手 / 定位 | 打法 | 说明 |
+| --- | --- | --- |
+| 微软 Dynamics | Copilot 全家桶 | 办公生态 + Dynamics，办公场景集成强 |
+| ServiceNow | 工作流 Agent | IT/企业工作流自动化，Agent 化激进 |
+| SAP/Oracle | ERP + AI | 从 ERP 侧做业务 AI，数据纵深强 |
+| Salesforce 定位 | 数据 + Agentforce | 客户数据护城河 + Agentforce + Trust Layer |
+
+---
+
+## 09 演进路线：从云 CRM 到结果型 Agentic SaaS
+
+| 阶段 | 里程碑 | 说明 |
+| --- | --- | --- |
+| 1999 | 云 CRM 开创 | SaaS 模式开创者，按席位订阅卖软件 |
+| 2010s | Customer 360 | 整合销售/服务/营销，Einstein 引入 AI |
+| 2023-24 | Data Cloud + Agentforce | 统一数据 + 自主 Agent，探索按结果计费 |
+| 未来 | 结果型 Agentic SaaS | 从卖席位到卖办成的业务结果 |
+
+---
+
+## 10 护城河风险 vs 独特价值与客户粘性
+
+去 UI 化让应用层有被中介化风险，但独有客户数据 + 深嵌业务流程的粘性极强。
+
+| 护城河面临的风险 | 独特价值与客户粘性 |
+| --- | --- |
+| 平台级 Agent 中介化，抢走用户入口 | 多年沉淀的客户关系数据，Agent 独有上下文 |
+| 去 UI 化削弱界面/体验差异 | 深度嵌入核心业务流程，替换成本极高 |
+| 能力被比价，沦为可替换的调用后端 | AppExchange 生态 + ISV 伙伴网络引力 |
+| 模型与数据平台向上挤压应用层 | Trust Layer 把「可信」做成差异点 |
+| 按结果计费冲击传统席位收入 | 组织习惯与流程绑定，客户留存强 |
+
+> **本质**：独有客户数据 + 深嵌业务流程，是 Salesforce 在去 UI 化时代仍难被替代的粘性。
+
+---
+
 ## 关键判断（Strategic Takeaways）
 
 1. **从席位到结果**：Agent 替人办事，使计费从「按人」转向「按完成的业务结果」。

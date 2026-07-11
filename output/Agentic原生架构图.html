@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agentic AI 原生架构图</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js" integrity="sha384-en/ztfPSRkGfME4KIm05joYXynqzUgbsG5nMrj/xEFAHXkeZfO3yMK8QQ+mP7p1/" crossorigin="anonymous"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'JetBrains Mono', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', monospace;
+      background: #020617;
+      min-height: 100vh;
+      padding: 2rem;
+      color: white;
+    }
+
+    svg text {
+      font-family: 'JetBrains Mono', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', monospace;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      margin-bottom: 2rem;
+    }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .pulse-dot {
+      width: 12px;
+      height: 12px;
+      background: #22d3ee;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+
+    .subtitle {
+      color: #94a3b8;
+      font-size: 0.875rem;
+      margin-left: 1.75rem;
+    }
+
+    .diagram-container {
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: 1rem;
+      border: 1px solid #1e293b;
+      padding: 1.5rem;
+      overflow-x: auto;
+    }
+
+    svg {
+      width: 100%;
+      min-width: 900px;
+      display: block;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: 0.75rem;
+      border: 1px solid #1e293b;
+      padding: 1.25rem;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .card-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .card-dot.cyan { background: #22d3ee; }
+    .card-dot.emerald { background: #34d399; }
+    .card-dot.violet { background: #a78bfa; }
+    .card-dot.amber { background: #fbbf24; }
+    .card-dot.rose { background: #fb7185; }
+
+    .card h3 {
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .card ul {
+      list-style: none;
+      color: #94a3b8;
+      font-size: 0.75rem;
+    }
+
+    .card li {
+      margin-bottom: 0.375rem;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      color: #475569;
+      font-size: 0.75rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 0.5rem;
+      margin-left: auto;
+      flex-shrink: 0;
+      align-items: center;
+    }
+    .toolbar-toggle {
+      background: transparent;
+      border: none;
+      color: #475569;
+      cursor: pointer;
+      font-size: 1.25rem;
+      line-height: 1;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.375rem;
+      transition: color 0.2s, background 0.2s;
+    }
+    .toolbar-toggle:hover { color: #94a3b8; background: rgba(30, 41, 59, 0.5); }
+    .toolbar-actions {
+      display: none;
+      gap: 0.5rem;
+    }
+    .toolbar.expanded .toolbar-actions { display: flex; }
+    .toolbar-actions button {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid #334155;
+      color: #94a3b8;
+      padding: 0.375rem 0.75rem;
+      border-radius: 0.375rem;
+      font-family: inherit;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .toolbar-actions button:hover {
+      background: rgba(51, 65, 85, 0.8);
+      color: white;
+      border-color: #475569;
+    }
+
+    @media print {
+      body { background: #020617; padding: 1rem; }
+      .toolbar { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="report-container">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-row">
+        <div class="pulse-dot"></div>
+        <h1>Agentic AI · 原生架构图</h1>
+        <div class="toolbar">
+          <div class="toolbar-actions">
+            <button onclick="copyAsImage(this)">📋 Copy</button>
+            <button onclick="downloadPNG(this)">🖼️ PNG</button>
+            <button onclick="downloadPDF(this)">📄 PDF</button>
+          </div>
+          <button class="toolbar-toggle" onclick="this.parentElement.classList.toggle('expanded')" title="Export options" aria-label="Export options">⋯</button>
+        </div>
+      </div>
+      <p class="subtitle">场景 1 LLM+MCP 工具 → 场景 2 LLM+RAG/SKILL → 场景 3 多 Agent 协同 —— 全部包含在场景 4 · Harness 之中</p>
+    </div>
+
+    <!-- Main Diagram -->
+    <div class="diagram-container">
+      <svg viewBox="0 0 1000 668">
+        <!-- Definitions -->
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
+          </marker>
+          <marker id="arrow-cyan" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#22d3ee" />
+          </marker>
+          <marker id="arrow-emerald" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#34d399" />
+          </marker>
+          <marker id="arrow-violet" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#a78bfa" />
+          </marker>
+          <marker id="arrow-orange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#fb923c" />
+          </marker>
+          <marker id="arrow-amber" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#fbbf24" />
+          </marker>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+
+        <!-- Background Grid -->
+        <rect width="100%" height="100%" fill="url(#grid)" />
+
+        <!-- =================== ARROWS (drawn early, behind boxes) =================== -->
+        <!-- Users → 入口 -->
+        <line x1="135" y1="100" x2="178" y2="100" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arrow-cyan)"/>
+        <text x="157" y="93" fill="#94a3b8" font-size="8" text-anchor="middle">请求</text>
+        <!-- 入口 → Users（结果回流） -->
+        <line x1="178" y1="122" x2="135" y2="122" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#arrowhead)"/>
+        <text x="157" y="136" fill="#94a3b8" font-size="8" text-anchor="middle">结果</text>
+        <!-- 入口 → 场景 1 -->
+        <line x1="235" y1="134" x2="235" y2="166" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arrow-cyan)"/>
+
+        <!-- 场景 1 内部：LLM ⇅ MCP 总线 ⇢ 工具 -->
+        <line x1="296" y1="254" x2="296" y2="282" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrow-emerald)"/>
+        <line x1="308" y1="308" x2="308" y2="258" stroke="#fb923c" stroke-width="1.5" marker-end="url(#arrow-orange)"/>
+        <line x1="227" y1="308" x2="227" y2="336" stroke="#fb923c" stroke-width="1.5" marker-end="url(#arrow-orange)"/>
+        <line x1="303" y1="308" x2="303" y2="336" stroke="#fb923c" stroke-width="1.5" marker-end="url(#arrow-orange)"/>
+        <line x1="379" y1="308" x2="379" y2="336" stroke="#fb923c" stroke-width="1.5" marker-end="url(#arrow-orange)"/>
+
+        <!-- 场景 2 内部：知识库 / SKILL ⇢ LLM -->
+        <line x1="509" y1="338" x2="509" y2="258" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrow-violet)"/>
+        <text x="517" y="302" fill="#94a3b8" font-size="8">检索增强</text>
+        <line x1="624" y1="338" x2="624" y2="258" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arrow-cyan)"/>
+        <text x="632" y="302" fill="#94a3b8" font-size="8">流程规范</text>
+
+        <!-- 场景 3 内部：调度 → 协同总线 → 执行 Agent，自适应回路 -->
+        <line x1="830" y1="250" x2="830" y2="278" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrow-emerald)"/>
+        <line x1="748" y1="302" x2="748" y2="330" stroke="#fb923c" stroke-width="1.5" marker-end="url(#arrow-orange)"/>
+        <line x1="820" y1="302" x2="820" y2="330" stroke="#fb923c" stroke-width="1.5" marker-end="url(#arrow-orange)"/>
+        <line x1="892" y1="302" x2="892" y2="330" stroke="#fb923c" stroke-width="1.5" marker-end="url(#arrow-orange)"/>
+        <line x1="936" y1="358" x2="936" y2="235" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="5,5" marker-end="url(#arrow-amber)"/>
+        <text transform="rotate(-90 946 296)" x="946" y="296" fill="#fbbf24" font-size="7" text-anchor="middle">自适应反馈</text>
+
+        <!-- 场景演进箭头 1 → 2 → 3 -->
+        <line x1="428" y1="320" x2="442" y2="320" stroke="#64748b" stroke-width="2" marker-end="url(#arrowhead)"/>
+        <line x1="693" y1="320" x2="707" y2="320" stroke="#64748b" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+        <!-- 场景 1/2/3 ⇣ Harness 能力底座 -->
+        <line x1="302" y1="470" x2="302" y2="504" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#arrowhead)"/>
+        <line x1="567" y1="470" x2="567" y2="504" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#arrowhead)"/>
+        <line x1="830" y1="470" x2="830" y2="504" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#arrowhead)"/>
+
+        <!-- =================== 场景 4：Harness 大框（包含场景 1/2/3） =================== -->
+        <rect x="160" y="36" width="815" height="564" rx="12" fill="rgba(251, 191, 36, 0.05)" stroke="#fbbf24" stroke-width="1" stroke-dasharray="8,4"/>
+        <text x="176" y="58" fill="#fbbf24" font-size="11" font-weight="600">场景 4 · HARNESS —— Agent 运行框架：把场景 1 / 2 / 3 全部包含的大框</text>
+        <text x="630" y="102" fill="#94a3b8" font-size="9" text-anchor="middle">圈内的一切 —— 工具调用 · 知识与流程 · 多 Agent 协同 ——</text>
+        <text x="630" y="120" fill="#94a3b8" font-size="9" text-anchor="middle">都由同一运行框架统一承载，这就是 Harness 的内涵</text>
+
+        <!-- 场景边界 -->
+        <rect x="180" y="170" width="245" height="300" rx="8" fill="transparent" stroke="#22d3ee" stroke-width="1" stroke-dasharray="4,4"/>
+        <text x="190" y="188" fill="#22d3ee" font-size="9" font-weight="600">场景 1 · LLM + MCP 工具</text>
+        <text x="302" y="452" fill="#22d3ee" font-size="8" text-anchor="middle">简单问答 · 内容生成</text>
+
+        <rect x="445" y="170" width="245" height="300" rx="8" fill="transparent" stroke="#a78bfa" stroke-width="1" stroke-dasharray="4,4"/>
+        <text x="455" y="188" fill="#a78bfa" font-size="9" font-weight="600">场景 2 · LLM + RAG / SKILL</text>
+        <text x="567" y="452" fill="#a78bfa" font-size="8" text-anchor="middle">知识定边界 · SKILL 定章法</text>
+
+        <rect x="710" y="170" width="240" height="300" rx="8" fill="transparent" stroke="#34d399" stroke-width="1" stroke-dasharray="4,4"/>
+        <text x="720" y="188" fill="#34d399" font-size="9" font-weight="600">场景 3 · 多 Agent 协同</text>
+        <text x="830" y="452" fill="#34d399" font-size="8" text-anchor="middle">调度 · 协同 · 自适应</text>
+
+        <!-- =================== 组件 =================== -->
+        <!-- 企业用户（外部） -->
+        <rect x="25" y="82" width="110" height="52" rx="6" fill="#0f172a"/>
+        <rect x="25" y="82" width="110" height="52" rx="6" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+        <text x="80" y="104" fill="white" font-size="11" font-weight="600" text-anchor="middle">企业用户</text>
+        <text x="80" y="120" fill="#94a3b8" font-size="9" text-anchor="middle">业务人员 / 系统</text>
+
+        <!-- Agent 入口 -->
+        <rect x="180" y="82" width="110" height="52" rx="6" fill="#0f172a"/>
+        <rect x="180" y="82" width="110" height="52" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="235" y="104" fill="white" font-size="11" font-weight="600" text-anchor="middle">Agent 入口</text>
+        <text x="235" y="120" fill="#94a3b8" font-size="9" text-anchor="middle">会话 · API · 任务</text>
+
+        <!-- 场景 1：LLM -->
+        <rect x="240" y="200" width="125" height="54" rx="6" fill="#0f172a"/>
+        <rect x="240" y="200" width="125" height="54" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="302" y="222" fill="white" font-size="11" font-weight="600" text-anchor="middle">LLM</text>
+        <text x="302" y="240" fill="#94a3b8" font-size="9" text-anchor="middle">理解 · 推理 · 生成</text>
+
+        <!-- 场景 1：MCP 总线 -->
+        <rect x="225" y="286" width="155" height="22" rx="4" fill="#0f172a"/>
+        <rect x="225" y="286" width="155" height="22" rx="4" fill="rgba(251, 146, 60, 0.3)" stroke="#fb923c" stroke-width="1"/>
+        <text x="302" y="300" fill="#fb923c" font-size="7" text-anchor="middle">MCP 协议 / 工具调用总线</text>
+
+        <!-- 场景 1：工具 -->
+        <rect x="192" y="340" width="70" height="52" rx="6" fill="#0f172a"/>
+        <rect x="192" y="340" width="70" height="52" rx="6" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+        <text x="227" y="361" fill="white" font-size="10" font-weight="600" text-anchor="middle">搜索</text>
+        <text x="227" y="377" fill="#94a3b8" font-size="8" text-anchor="middle">Web 检索</text>
+
+        <rect x="268" y="340" width="70" height="52" rx="6" fill="#0f172a"/>
+        <rect x="268" y="340" width="70" height="52" rx="6" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+        <text x="303" y="361" fill="white" font-size="10" font-weight="600" text-anchor="middle">文件</text>
+        <text x="303" y="377" fill="#94a3b8" font-size="8" text-anchor="middle">文档系统</text>
+
+        <rect x="344" y="340" width="70" height="52" rx="6" fill="#0f172a"/>
+        <rect x="344" y="340" width="70" height="52" rx="6" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+        <text x="379" y="361" fill="white" font-size="10" font-weight="600" text-anchor="middle">业务 API</text>
+        <text x="379" y="377" fill="#94a3b8" font-size="8" text-anchor="middle">ERP · CRM</text>
+
+        <!-- 场景 2：LLM -->
+        <rect x="505" y="200" width="125" height="54" rx="6" fill="#0f172a"/>
+        <rect x="505" y="200" width="125" height="54" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="567" y="222" fill="white" font-size="11" font-weight="600" text-anchor="middle">LLM</text>
+        <text x="567" y="240" fill="#94a3b8" font-size="9" text-anchor="middle">按知识与流程作答</text>
+
+        <!-- 场景 2：知识库（RAG） -->
+        <rect x="457" y="340" width="105" height="56" rx="6" fill="#0f172a"/>
+        <rect x="457" y="340" width="105" height="56" rx="6" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="509" y="362" fill="white" font-size="11" font-weight="600" text-anchor="middle">知识库</text>
+        <text x="509" y="379" fill="#94a3b8" font-size="9" text-anchor="middle">RAG · 向量检索</text>
+
+        <!-- 场景 2：SKILL -->
+        <rect x="572" y="340" width="105" height="56" rx="6" fill="#0f172a"/>
+        <rect x="572" y="340" width="105" height="56" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="624" y="362" fill="white" font-size="11" font-weight="600" text-anchor="middle">SKILL</text>
+        <text x="624" y="379" fill="#94a3b8" font-size="9" text-anchor="middle">业务流程 · 规范</text>
+
+        <!-- 场景 3：调度 Agent -->
+        <rect x="762" y="200" width="136" height="50" rx="6" fill="#0f172a"/>
+        <rect x="762" y="200" width="136" height="50" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="830" y="220" fill="white" font-size="11" font-weight="600" text-anchor="middle">调度 Agent</text>
+        <text x="830" y="238" fill="#94a3b8" font-size="9" text-anchor="middle">规划 · 分派 · 汇聚</text>
+
+        <!-- 场景 3：协同总线 -->
+        <rect x="735" y="282" width="190" height="20" rx="4" fill="#0f172a"/>
+        <rect x="735" y="282" width="190" height="20" rx="4" fill="rgba(251, 146, 60, 0.3)" stroke="#fb923c" stroke-width="1"/>
+        <text x="830" y="295" fill="#fb923c" font-size="7" text-anchor="middle">Agent 协同总线（A2A）</text>
+
+        <!-- 场景 3：执行 Agents -->
+        <rect x="718" y="334" width="60" height="52" rx="6" fill="#0f172a"/>
+        <rect x="718" y="334" width="60" height="52" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="748" y="355" fill="white" font-size="10" font-weight="600" text-anchor="middle">检索</text>
+        <text x="748" y="371" fill="#94a3b8" font-size="8" text-anchor="middle">Agent</text>
+        <text x="784" y="364" fill="#34d399" font-size="9" text-anchor="middle">⇄</text>
+
+        <rect x="790" y="334" width="60" height="52" rx="6" fill="#0f172a"/>
+        <rect x="790" y="334" width="60" height="52" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="820" y="355" fill="white" font-size="10" font-weight="600" text-anchor="middle">分析</text>
+        <text x="820" y="371" fill="#94a3b8" font-size="8" text-anchor="middle">Agent</text>
+        <text x="856" y="364" fill="#34d399" font-size="9" text-anchor="middle">⇄</text>
+
+        <rect x="862" y="334" width="60" height="52" rx="6" fill="#0f172a"/>
+        <rect x="862" y="334" width="60" height="52" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="892" y="355" fill="white" font-size="10" font-weight="600" text-anchor="middle">执行</text>
+        <text x="892" y="371" fill="#94a3b8" font-size="8" text-anchor="middle">Agent</text>
+
+        <!-- =================== Harness 统一能力底座 =================== -->
+        <text x="567" y="498" fill="#fbbf24" font-size="9" font-weight="600" text-anchor="middle">HARNESS 统一能力底座（场景 1 / 2 / 3 共享）</text>
+
+        <rect x="190" y="510" width="176" height="54" rx="6" fill="#0f172a"/>
+        <rect x="190" y="510" width="176" height="54" rx="6" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="278" y="532" fill="white" font-size="11" font-weight="600" text-anchor="middle">上下文 · 记忆</text>
+        <text x="278" y="549" fill="#94a3b8" font-size="9" text-anchor="middle">Context · Memory</text>
+
+        <rect x="383" y="510" width="176" height="54" rx="6" fill="#0f172a"/>
+        <rect x="383" y="510" width="176" height="54" rx="6" fill="rgba(251, 146, 60, 0.3)" stroke="#fb923c" stroke-width="1.5"/>
+        <text x="471" y="532" fill="white" font-size="11" font-weight="600" text-anchor="middle">工具 / MCP 路由</text>
+        <text x="471" y="549" fill="#94a3b8" font-size="9" text-anchor="middle">Tool Router</text>
+
+        <rect x="576" y="510" width="176" height="54" rx="6" fill="#0f172a"/>
+        <rect x="576" y="510" width="176" height="54" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="664" y="532" fill="white" font-size="11" font-weight="600" text-anchor="middle">知识 · SKILL 加载</text>
+        <text x="664" y="549" fill="#94a3b8" font-size="9" text-anchor="middle">RAG · Skill Loader</text>
+
+        <rect x="769" y="510" width="176" height="54" rx="6" fill="#0f172a"/>
+        <rect x="769" y="510" width="176" height="54" rx="6" fill="rgba(136, 19, 55, 0.4)" stroke="#fb7185" stroke-width="1.5"/>
+        <text x="857" y="532" fill="white" font-size="11" font-weight="600" text-anchor="middle">权限 · 安全护栏</text>
+        <text x="857" y="549" fill="#94a3b8" font-size="9" text-anchor="middle">Guardrails · Audit</text>
+
+        <!-- =================== LEGEND（位于所有边界之外） =================== -->
+        <text x="180" y="622" fill="white" font-size="10" font-weight="600">Legend</text>
+
+        <rect x="180" y="632" width="16" height="10" rx="2" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1"/>
+        <text x="202" y="640" fill="#94a3b8" font-size="8">交互 / 入口</text>
+
+        <rect x="300" y="632" width="16" height="10" rx="2" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
+        <text x="322" y="640" fill="#94a3b8" font-size="8">LLM / Agent</text>
+
+        <rect x="420" y="632" width="16" height="10" rx="2" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1"/>
+        <text x="442" y="640" fill="#94a3b8" font-size="8">知识 / 记忆</text>
+
+        <rect x="540" y="632" width="16" height="10" rx="2" fill="rgba(251, 146, 60, 0.3)" stroke="#fb923c" stroke-width="1"/>
+        <text x="562" y="640" fill="#94a3b8" font-size="8">协同 / 工具总线</text>
+
+        <rect x="680" y="632" width="16" height="10" rx="2" fill="rgba(136, 19, 55, 0.4)" stroke="#fb7185" stroke-width="1"/>
+        <text x="702" y="640" fill="#94a3b8" font-size="8">安全护栏</text>
+
+        <rect x="790" y="632" width="16" height="10" rx="2" fill="transparent" stroke="#fbbf24" stroke-width="1" stroke-dasharray="3,3"/>
+        <text x="812" y="640" fill="#94a3b8" font-size="8">Harness 边界（场景 4）</text>
+      </svg>
+    </div>
+
+    <!-- Info Cards -->
+    <div class="cards">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>场景演进 1 → 2 → 3</h3>
+        </div>
+        <ul>
+          <li>• 场景 1：LLM + MCP 工具，完成简单问答与内容生成</li>
+          <li>• 场景 2：LLM + RAG/SKILL，知识库定边界、SKILL 规范业务流程</li>
+          <li>• 场景 3：多 Agent 调度、协同、自适应，应对复杂任务</li>
+          <li>• 由简到繁，能力逐级叠加而非互相替代</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>场景 4 · Harness 的内涵</h3>
+        </div>
+        <ul>
+          <li>• 一个大框把场景 1 / 2 / 3 全部包含在内</li>
+          <li>• 统一上下文与记忆，跨场景共享状态</li>
+          <li>• 统一工具 / MCP 路由与知识 · SKILL 加载</li>
+          <li>• 统一多 Agent 调度与生命周期管理</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>运行与治理</h3>
+        </div>
+        <ul>
+          <li>• 权限最小化：工具与数据访问经护栏审批</li>
+          <li>• 全链路审计：每次调用可观测、可回放</li>
+          <li>• 自适应反馈：执行结果回流调度层动态调整</li>
+          <li>• 结果回流业务：产出交付给企业用户与系统</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <p class="footer">
+      Agentic AI 原生架构 • 场景 1 工具 / 场景 2 知识 / 场景 3 协同 / 场景 4 Harness • chenliang · 2026-07
+    </p>
+  </div>
+
+  <script>
+    async function copyAsImage(btn) {
+      const orig = btn.textContent;
+      try {
+        const el = document.getElementById('report-container');
+        const r = el.getBoundingClientRect();
+        const pad = 32;
+        const canvas = await html2canvas(document.body, { backgroundColor: '#020617', scale: 2, useCORS: true, ignoreElements: (e) => e.classList && e.classList.contains('toolbar'), x: r.left + window.scrollX - pad, y: r.top + window.scrollY - pad, width: r.width + pad * 2, height: r.height + pad * 2 });
+        const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        btn.textContent = '✓ Copied!';
+      } catch (e) {
+        btn.textContent = '✗ Failed';
+      }
+      setTimeout(() => btn.textContent = orig, 2000);
+    }
+
+    async function downloadPNG(btn) {
+      const orig = btn.textContent;
+      btn.textContent = '⏳ ...';
+      try {
+        const el = document.getElementById('report-container');
+        const r = el.getBoundingClientRect();
+        const pad = 32;
+        const canvas = await html2canvas(document.body, { backgroundColor: '#020617', scale: 2, useCORS: true, ignoreElements: (e) => e.classList && e.classList.contains('toolbar'), x: r.left + window.scrollX - pad, y: r.top + window.scrollY - pad, width: r.width + pad * 2, height: r.height + pad * 2 });
+        const link = document.createElement('a');
+        link.download = 'agentic-ai-native-architecture.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        btn.textContent = '✓ Done!';
+      } catch (e) {
+        btn.textContent = '✗ Failed';
+      }
+      setTimeout(() => btn.textContent = orig, 2000);
+    }
+
+    async function downloadPDF(btn) {
+      const orig = btn.textContent;
+      btn.textContent = '⏳ ...';
+      try {
+        const el = document.getElementById('report-container');
+        const r = el.getBoundingClientRect();
+        const pad = 32;
+        const canvas = await html2canvas(document.body, { backgroundColor: '#020617', scale: 2, useCORS: true, ignoreElements: (e) => e.classList && e.classList.contains('toolbar'), x: r.left + window.scrollX - pad, y: r.top + window.scrollY - pad, width: r.width + pad * 2, height: r.height + pad * 2 });
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        const orientation = canvas.width > canvas.height ? 'landscape' : 'portrait';
+        const pdf = new jsPDF({ orientation, unit: 'px', format: [canvas.width, canvas.height], hotfixes: ['px_scaling'] });
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        pdf.save('agentic-ai-native-architecture.pdf');
+        btn.textContent = '✓ Done!';
+      } catch (e) {
+        btn.textContent = '✗ Failed';
+      }
+      setTimeout(() => btn.textContent = orig, 2000);
+    }
+  </script>
+</body>
+</html>

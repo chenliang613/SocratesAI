@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>行业智能化第一性原理逻辑图</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js" integrity="sha384-en/ztfPSRkGfME4KIm05joYXynqzUgbsG5nMrj/xEFAHXkeZfO3yMK8QQ+mP7p1/" crossorigin="anonymous"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'JetBrains Mono', 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC', 'Microsoft YaHei', monospace;
+      background: #020617;
+      min-height: 100vh;
+      padding: 2rem;
+      color: white;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      margin-bottom: 2rem;
+    }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .pulse-dot {
+      width: 12px;
+      height: 12px;
+      background: #22d3ee;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+
+    .subtitle {
+      color: #94a3b8;
+      font-size: 0.875rem;
+      margin-left: 1.75rem;
+    }
+
+    .diagram-container {
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: 1rem;
+      border: 1px solid #1e293b;
+      padding: 1.5rem;
+      overflow-x: auto;
+    }
+
+    svg {
+      width: 100%;
+      min-width: 900px;
+      display: block;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: 0.75rem;
+      border: 1px solid #1e293b;
+      padding: 1.25rem;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .card-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .card-dot.cyan { background: #22d3ee; }
+    .card-dot.emerald { background: #34d399; }
+    .card-dot.violet { background: #a78bfa; }
+    .card-dot.amber { background: #fbbf24; }
+    .card-dot.rose { background: #fb7185; }
+
+    .card h3 {
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .card ul {
+      list-style: none;
+      color: #94a3b8;
+      font-size: 0.75rem;
+    }
+
+    .card li {
+      margin-bottom: 0.375rem;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      color: #475569;
+      font-size: 0.75rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 0.5rem;
+      margin-left: auto;
+      flex-shrink: 0;
+      align-items: center;
+    }
+    .toolbar-toggle {
+      background: transparent;
+      border: none;
+      color: #475569;
+      cursor: pointer;
+      font-size: 1.25rem;
+      line-height: 1;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.375rem;
+      transition: color 0.2s, background 0.2s;
+    }
+    .toolbar-toggle:hover { color: #94a3b8; background: rgba(30, 41, 59, 0.5); }
+    .toolbar-actions {
+      display: none;
+      gap: 0.5rem;
+    }
+    .toolbar.expanded .toolbar-actions { display: flex; }
+    .toolbar-actions button {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid #334155;
+      color: #94a3b8;
+      padding: 0.375rem 0.75rem;
+      border-radius: 0.375rem;
+      font-family: inherit;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .toolbar-actions button:hover {
+      background: rgba(51, 65, 85, 0.8);
+      color: white;
+      border-color: #475569;
+    }
+
+    @media print {
+      body { background: #020617; padding: 1rem; }
+      .toolbar { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="report-container">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-row">
+        <div class="pulse-dot"></div>
+        <h1>行业智能化发展第一性原理 · 逻辑图</h1>
+        <div class="toolbar">
+          <div class="toolbar-actions">
+            <button onclick="copyAsImage(this)">📋 Copy</button>
+            <button onclick="downloadPNG(this)">🖼️ PNG</button>
+            <button onclick="downloadPDF(this)">📄 PDF</button>
+          </div>
+          <button class="toolbar-toggle" onclick="this.parentElement.classList.toggle('expanded')" title="Export options" aria-label="Export options">⋯</button>
+        </div>
+      </div>
+      <p class="subtitle">剥离行业外壳后的六条底层规律 —— 任何企业 AI 变革都绕不过的元方法论</p>
+    </div>
+
+    <!-- Main Diagram -->
+    <div class="diagram-container">
+      <svg viewBox="0 0 1000 1190">
+        <!-- Definitions -->
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
+          </marker>
+          <marker id="arrowhead-rose" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#fb7185" />
+          </marker>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+
+        <!-- Background Grid -->
+        <rect width="100%" height="100%" fill="url(#grid)" />
+
+        <!-- =============== 连接箭头(先画, 置于底层) =============== -->
+        <!-- 表象层 → 原理层 -->
+        <line x1="500" y1="140" x2="500" y2="176" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <text x="515" y="162" fill="#94a3b8" font-size="9">剥离行业外壳 · 遵循同一套底层规律</text>
+
+        <!-- 原理一 → 能力底座 -->
+        <line x1="280" y1="330" x2="280" y2="356" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <line x1="720" y1="330" x2="720" y2="356" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+        <!-- 能力底座 → 落地路径 -->
+        <line x1="280" y1="485" x2="280" y2="526" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <line x1="720" y1="485" x2="720" y2="526" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+        <!-- 原理四 → 原理五 (经验模板化) -->
+        <line x1="482" y1="596" x2="516" y2="596" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <text x="499" y="586" fill="#94a3b8" font-size="7.5" text-anchor="middle">经验模板化</text>
+
+        <!-- 落地路径 → 经济引擎 -->
+        <line x1="280" y1="655" x2="280" y2="696" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <line x1="720" y1="655" x2="720" y2="696" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+        <!-- ROI 飞轮反馈: 原理六 → 原理一 -->
+        <path d="M 920 750 Q 945 750 945 715 L 945 310 Q 945 275 924 275" fill="none" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="5,5" marker-end="url(#arrowhead-rose)"/>
+        <text transform="rotate(-90 933 512)" x="933" y="512" fill="#fb7185" font-size="8" text-anchor="middle">边际成本递减 → ROI 持续增强 · 飞轮效应</text>
+
+        <!-- 原理层 → 企业AI变革 -->
+        <line x1="500" y1="827" x2="500" y2="874" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <text x="515" y="855" fill="#94a3b8" font-size="9">底层规律 → 驱动企业软件范式彻底重构</text>
+
+        <!-- 范式跃迁箭头 -->
+        <line x1="464" y1="1012" x2="536" y2="1012" stroke="#22d3ee" stroke-width="2" marker-end="url(#arrowhead)"/>
+        <text x="500" y="1000" fill="#22d3ee" font-size="8.5" text-anchor="middle" font-weight="600">范式跃迁</text>
+
+        <!-- =============== 第一层: 行业表象 =============== -->
+        <rect x="40" y="30" width="920" height="105" rx="12" fill="rgba(30, 41, 59, 0.15)" stroke="#64748b" stroke-width="1" stroke-dasharray="8,4"/>
+        <text x="52" y="48" fill="#94a3b8" font-size="10" font-weight="600">行业表象 · 路径与节奏千差万别</text>
+
+        <rect x="60" y="60" width="190" height="55" rx="6" fill="#0f172a"/>
+        <rect x="60" y="60" width="190" height="55" rx="6" fill="rgba(136, 19, 55, 0.4)" stroke="#fb7185" stroke-width="1.5"/>
+        <text x="155" y="82" fill="white" font-size="11" font-weight="600" text-anchor="middle">金融 · 风控 Agent</text>
+        <text x="155" y="100" fill="#94a3b8" font-size="9" text-anchor="middle">风险审批 · 反欺诈</text>
+
+        <rect x="290" y="60" width="190" height="55" rx="6" fill="#0f172a"/>
+        <rect x="290" y="60" width="190" height="55" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="385" y="82" fill="white" font-size="11" font-weight="600" text-anchor="middle">电商 · 导购 Agent</text>
+        <text x="385" y="100" fill="#94a3b8" font-size="9" text-anchor="middle">个性化推荐 · 转化</text>
+
+        <rect x="520" y="60" width="190" height="55" rx="6" fill="#0f172a"/>
+        <rect x="520" y="60" width="190" height="55" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="615" y="82" fill="white" font-size="11" font-weight="600" text-anchor="middle">制造 · 质检 Agent</text>
+        <text x="615" y="100" fill="#94a3b8" font-size="9" text-anchor="middle">缺陷检测 · 良率提升</text>
+
+        <rect x="750" y="60" width="190" height="55" rx="6" fill="#0f172a"/>
+        <rect x="750" y="60" width="190" height="55" rx="6" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="845" y="82" fill="white" font-size="11" font-weight="600" text-anchor="middle">医疗 · 诊断 Agent</text>
+        <text x="845" y="100" fill="#94a3b8" font-size="9" text-anchor="middle">辅助诊断 · 临床 SOP</text>
+
+        <!-- =============== 第二层: 六条第一性原理 =============== -->
+        <rect x="40" y="180" width="920" height="645" rx="12" fill="rgba(251, 191, 36, 0.04)" stroke="#fbbf24" stroke-width="1" stroke-dasharray="8,4"/>
+        <text x="52" y="200" fill="#fbbf24" font-size="10" font-weight="600">六条第一性原理 · 彼此正交 · 缺一不可 —— 行业智能化的元方法论</text>
+
+        <!-- 原理一: 价值守恒 -->
+        <rect x="80" y="220" width="840" height="110" rx="6" fill="#0f172a"/>
+        <rect x="80" y="220" width="840" height="110" rx="6" fill="rgba(136, 19, 55, 0.4)" stroke="#fb7185" stroke-width="1.5"/>
+        <text x="500" y="238" fill="#fb7185" font-size="8" text-anchor="middle" letter-spacing="1">原理一 · 价值前提 —— 为什么值得做</text>
+        <text x="500" y="259" fill="white" font-size="12.5" font-weight="600" text-anchor="middle">价值守恒原理 —— 没有正 ROI 就没有真行业智能化</text>
+        <text x="500" y="281" fill="#34d399" font-size="9.5" text-anchor="middle">被替代的认知劳动成本 ＋ 新创造的认知红利</text>
+        <text x="500" y="298" fill="white" font-size="10" font-weight="700" text-anchor="middle">＞　(可持续性的必要条件)</text>
+        <text x="500" y="315" fill="#fb7185" font-size="9.5" text-anchor="middle">模型推理成本 ＋ 部署运维成本 ＋ 组织变革成本</text>
+
+        <!-- 原理二: 数据语义打通 -->
+        <rect x="80" y="360" width="400" height="125" rx="6" fill="#0f172a"/>
+        <rect x="80" y="360" width="400" height="125" rx="6" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="280" y="378" fill="#a78bfa" font-size="8" text-anchor="middle" letter-spacing="1">原理二 · 能力底座 —— 数据说同一语言</text>
+        <text x="280" y="400" fill="white" font-size="12.5" font-weight="600" text-anchor="middle">企业数据语义打通</text>
+        <text x="280" y="424" fill="#94a3b8" font-size="9.5" text-anchor="middle">统一业务逻辑下消除术语与口径差异</text>
+        <text x="280" y="442" fill="#94a3b8" font-size="9.5" text-anchor="middle">语义本体 = 企业统一标准与业务词表</text>
+        <text x="280" y="460" fill="#94a3b8" font-size="9.5" text-anchor="middle">AI 据此跨部门自动处理业务与决策</text>
+
+        <!-- 原理三: 行业知识密度 -->
+        <rect x="520" y="360" width="400" height="125" rx="6" fill="#0f172a"/>
+        <rect x="520" y="360" width="400" height="125" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="720" y="378" fill="#34d399" font-size="8" text-anchor="middle" letter-spacing="1">原理三 · 能力底座 —— Know-How 是胜负手</text>
+        <text x="720" y="400" fill="white" font-size="12.5" font-weight="600" text-anchor="middle">行业知识密度原理</text>
+        <text x="720" y="424" fill="#94a3b8" font-size="9.5" text-anchor="middle">行业智能体 = 通用大模型 × 行业知识密度</text>
+        <text x="720" y="442" fill="#94a3b8" font-size="9.5" text-anchor="middle">通用模型是地板 · 知识密度是天花板</text>
+        <text x="720" y="460" fill="#94a3b8" font-size="9.5" text-anchor="middle">Skill / SOP / 行业语料 · 强监管行业尤甚</text>
+
+        <!-- 原理四: 标杆-规模化路径 -->
+        <rect x="80" y="530" width="400" height="125" rx="6" fill="#0f172a"/>
+        <rect x="80" y="530" width="400" height="125" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="280" y="548" fill="#22d3ee" font-size="8" text-anchor="middle" letter-spacing="1">原理四 · 落地路径 —— 先标杆后规模</text>
+        <text x="280" y="570" fill="white" font-size="12.5" font-weight="600" text-anchor="middle">标杆-规模化路径原理</text>
+        <text x="280" y="594" fill="#94a3b8" font-size="9.5" text-anchor="middle">PoC 验证可行性 → 标杆项目验证 ROI</text>
+        <text x="280" y="612" fill="#94a3b8" font-size="9.5" text-anchor="middle">→ 规模复制验证产业化</text>
+        <text x="280" y="630" fill="#94a3b8" font-size="9.5" text-anchor="middle">可见可量化的标杆: 销售周期 12 月 → 3 月</text>
+
+        <!-- 原理五: 场景可批量复制 -->
+        <rect x="520" y="530" width="400" height="125" rx="6" fill="#0f172a"/>
+        <rect x="520" y="530" width="400" height="125" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="720" y="548" fill="#fbbf24" font-size="8" text-anchor="middle" letter-spacing="1">原理五 · 落地路径 —— 可复制才可产业化</text>
+        <text x="720" y="570" fill="white" font-size="12.5" font-weight="600" text-anchor="middle">场景可批量复制原理</text>
+        <text x="720" y="594" fill="#94a3b8" font-size="9.5" text-anchor="middle">场景能否产业化, 取决于能否抽象为标准模板</text>
+        <text x="720" y="612" fill="#94a3b8" font-size="9.5" text-anchor="middle">并在行业内可重复落地</text>
+        <text x="720" y="630" fill="#94a3b8" font-size="9.5" text-anchor="middle">标准化强的场景 → 优先落地智能化</text>
+
+        <!-- 原理六: 边际成本递减 -->
+        <rect x="80" y="700" width="840" height="100" rx="6" fill="#0f172a"/>
+        <rect x="80" y="700" width="840" height="100" rx="6" fill="rgba(251, 146, 60, 0.25)" stroke="#fb923c" stroke-width="1.5"/>
+        <text x="500" y="718" fill="#fb923c" font-size="8" text-anchor="middle" letter-spacing="1">原理六 · 经济引擎 —— 软件业的根本经济学</text>
+        <text x="500" y="740" fill="white" font-size="12.5" font-weight="600" text-anchor="middle">边际成本递减原理 —— 第 N 次部署接近零成本</text>
+        <text x="500" y="764" fill="#94a3b8" font-size="9.5" text-anchor="middle">1 次开发服务 1000 个客户 · 第 1001 个部署成本可忽略 → 应用层捕获 100 倍价值</text>
+        <text x="500" y="782" fill="#94a3b8" font-size="9.5" text-anchor="middle">SaaS 估值高于传统服务业的根因 · 未来 SaaS 成为企业智能化的基础能力</text>
+
+        <!-- =============== 第三层: 企业 AI 变革 =============== -->
+        <rect x="40" y="880" width="920" height="250" rx="12" fill="rgba(136, 19, 55, 0.06)" stroke="#fb7185" stroke-width="1" stroke-dasharray="8,4"/>
+        <text x="52" y="900" fill="#fb7185" font-size="10" font-weight="600">企业 AI 变革 —— 软件范式的彻底重构: 从「界面填表」到「意图驱动」</text>
+
+        <!-- 传统软件范式 -->
+        <rect x="80" y="920" width="380" height="185" rx="8" fill="#0f172a"/>
+        <rect x="80" y="920" width="380" height="185" rx="8" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+        <text x="270" y="945" fill="white" font-size="12" font-weight="600" text-anchor="middle">传统软件范式 ——「界面填表」</text>
+        <text x="100" y="972" fill="#94a3b8" font-size="9">• 围绕「人如何使用系统」设计</text>
+        <text x="100" y="992" fill="#94a3b8" font-size="9">• 复杂 GUI 与死数据 · 菜单 / 表单 / 系统规则</text>
+        <text x="100" y="1012" fill="#94a3b8" font-size="9">• 静态的结果记录工具</text>
+        <text x="100" y="1032" fill="#94a3b8" font-size="9">• 按调用量和席位收费</text>
+        <text x="100" y="1052" fill="#94a3b8" font-size="9">• 痛点: 听不懂人话 · 用户认知负载过高</text>
+        <text x="270" y="1085" fill="#fb7185" font-size="8" text-anchor="middle">记录系统: 只能记录「订单流失」, 无法推理「如何挽回」</text>
+
+        <!-- Agent 时代软件范式 -->
+        <rect x="540" y="920" width="380" height="185" rx="8" fill="#0f172a"/>
+        <rect x="540" y="920" width="380" height="185" rx="8" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="730" y="945" fill="white" font-size="12" font-weight="600" text-anchor="middle">Agent 时代软件范式 ——「意图驱动」</text>
+        <text x="560" y="972" fill="#94a3b8" font-size="9">• 围绕「Agent 如何完成业务」构建</text>
+        <text x="560" y="992" fill="#94a3b8" font-size="9">• 机器可读语义本体 + 瞬时 GUI (GUI → CLI)</text>
+        <text x="560" y="1012" fill="#94a3b8" font-size="9">• 驱动业务的决策执行引擎</text>
+        <text x="560" y="1032" fill="#94a3b8" font-size="9">• 按结果 / 算力 (Token) 计费</text>
+        <text x="560" y="1052" fill="#94a3b8" font-size="9">• 核心竞争力沉淀到业务逻辑层 (2B 尤甚)</text>
+        <text x="730" y="1085" fill="#22d3ee" font-size="8" text-anchor="middle">业务大脑: 行业认知 → 底层语义 → 稳定驱动 Agent 执行</text>
+
+        <!-- =============== 图例说明 (边界之外) =============== -->
+        <text x="500" y="1165" fill="#475569" font-size="8.5" text-anchor="middle">实线 = 逻辑推进　·　玫瑰虚线 = ROI 增强飞轮　·　守恒式: 创造的价值 ＞ 消耗的成本</text>
+      </svg>
+    </div>
+
+    <!-- Info Cards -->
+    <div class="cards">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>价值与经济 (原理一 · 六)</h3>
+        </div>
+        <ul>
+          <li>• 价值守恒: 创造的价值 ＞ 消耗的成本, 才有可持续性</li>
+          <li>• 边际成本递减是 SaaS 估值高于传统服务业的根因</li>
+          <li>• Token 成为 Agent 之间交互的量纲, 计费逻辑重构</li>
+          <li>• 两者首尾相接, 构成 ROI 增强飞轮</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>能力底座 (原理二 · 三)</h3>
+        </div>
+        <ul>
+          <li>• 语义本体让各部门数据「说同一语言」</li>
+          <li>• 行业智能体 = 通用大模型 × 行业知识密度</li>
+          <li>• 通用模型能力增长放缓, 知识密度增长几乎无上限</li>
+          <li>• 强监管行业 (医疗/金融/法律) Know-How 是胜负手</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>落地路径 (原理四 · 五)</h3>
+        </div>
+        <ul>
+          <li>• PoC → 标杆项目 → 规模复制, To B 扩张的必经之路</li>
+          <li>• 可见、可量化、可参观的标杆压缩销售周期 12→3 个月</li>
+          <li>• 场景抽象为标准模板才能产业化</li>
+          <li>• 标准化强的场景优先落地智能化</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <p class="footer">
+      SocratesAI · 行业智能化发展第一性原理 · 源自《Input Minds.md》
+    </p>
+  </div>
+
+  <script>
+    async function copyAsImage(btn) {
+      const orig = btn.textContent;
+      try {
+        const el = document.getElementById('report-container');
+        const r = el.getBoundingClientRect();
+        const pad = 32;
+        const canvas = await html2canvas(document.body, { backgroundColor: '#020617', scale: 2, useCORS: true, ignoreElements: (e) => e.classList && e.classList.contains('toolbar'), x: r.left + window.scrollX - pad, y: r.top + window.scrollY - pad, width: r.width + pad * 2, height: r.height + pad * 2 });
+        const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        btn.textContent = '✓ Copied!';
+      } catch (e) {
+        btn.textContent = '✗ Failed';
+      }
+      setTimeout(() => btn.textContent = orig, 2000);
+    }
+
+    async function downloadPNG(btn) {
+      const orig = btn.textContent;
+      btn.textContent = '⏳ ...';
+      try {
+        const el = document.getElementById('report-container');
+        const r = el.getBoundingClientRect();
+        const pad = 32;
+        const canvas = await html2canvas(document.body, { backgroundColor: '#020617', scale: 2, useCORS: true, ignoreElements: (e) => e.classList && e.classList.contains('toolbar'), x: r.left + window.scrollX - pad, y: r.top + window.scrollY - pad, width: r.width + pad * 2, height: r.height + pad * 2 });
+        const link = document.createElement('a');
+        link.download = '行业智能化第一性原理逻辑图.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        btn.textContent = '✓ Done!';
+      } catch (e) {
+        btn.textContent = '✗ Failed';
+      }
+      setTimeout(() => btn.textContent = orig, 2000);
+    }
+
+    async function downloadPDF(btn) {
+      const orig = btn.textContent;
+      btn.textContent = '⏳ ...';
+      try {
+        const el = document.getElementById('report-container');
+        const r = el.getBoundingClientRect();
+        const pad = 32;
+        const canvas = await html2canvas(document.body, { backgroundColor: '#020617', scale: 2, useCORS: true, ignoreElements: (e) => e.classList && e.classList.contains('toolbar'), x: r.left + window.scrollX - pad, y: r.top + window.scrollY - pad, width: r.width + pad * 2, height: r.height + pad * 2 });
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        const orientation = canvas.width > canvas.height ? 'landscape' : 'portrait';
+        const pdf = new jsPDF({ orientation, unit: 'px', format: [canvas.width, canvas.height], hotfixes: ['px_scaling'] });
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        pdf.save('行业智能化第一性原理逻辑图.pdf');
+        btn.textContent = '✓ Done!';
+      } catch (e) {
+        btn.textContent = '✗ Failed';
+      }
+      setTimeout(() => btn.textContent = orig, 2000);
+    }
+  </script>
+</body>
+</html>

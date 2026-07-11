@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(artifact-design)",
+      "Artifact",
+      "WebSearch",
+      "WebFetch(domain:claudemarketplaces.com)",
+      "WebFetch(domain:crossaitools.com)",
+      "Bash(mkdir -p /Users/apple/SocratesAI/.claude/skills)",
+      "Bash(cp -R \"/private/tmp/claude-502/-Users-apple-SocratesAI/1f31f8a8-96cd-41bd-8bfb-79d8d3a1638d/scratchpad/architecture-diagram-generator/architecture-diagram\" /Users/apple/SocratesAI/.claude/skills/)",
+      "Bash(mkdir -p ~/.claude/skills)",
+      "Bash(cp -R \"/private/tmp/claude-502/-Users-apple-SocratesAI/1f31f8a8-96cd-41bd-8bfb-79d8d3a1638d/scratchpad/architecture-diagram-generator/architecture-diagram\" ~/.claude/skills/)",
+      "Bash(rm -rf /Users/apple/SocratesAI/.claude/skills/architecture-diagram)",
+      "Bash(rmdir /Users/apple/SocratesAI/.claude/skills)",
+      "Read(//Users/apple/.claude/skills/**)",
+      "WebFetch(domain:aws.amazon.com)"
+    ]
+  }
+}
